@@ -1,0 +1,570 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.page{display:none}
+.page.active{display:block}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 0 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem;position:sticky;top:0;background:var(--color-background-primary);z-index:10}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid transparent;font-size:13px;cursor:pointer;color:var(--color-text-secondary);background:transparent;transition:all .15s}
+.nav-tab.on{background:var(--color-background-secondary);border-color:var(--color-border-secondary);color:var(--color-text-primary);font-weight:500}
+.nav-tab:hover:not(.on){color:var(--color-text-primary);background:var(--color-background-secondary)}
+.nav-tab i{font-size:15px}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);font-size:13px;cursor:pointer;font-weight:500;transition:all .15s;background:#185FA5;color:#fff;border-color:#185FA5}
+.nav-btn:hover{background:#0C447C;border-color:#0C447C}
+.nav-btn i{font-size:15px}
+
+/* HERO */
+.hero{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.75rem;margin-bottom:1.75rem;position:relative;overflow:hidden}
+.hero-flag{font-size:28px;margin-bottom:.6rem;display:block}
+.hero h1{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px}
+.hero p{font-size:13px;color:var(--color-text-secondary);line-height:1.6;max-width:520px}
+.hero-badge{position:absolute;top:1.25rem;right:1.25rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:4px 10px;font-size:12px;color:var(--color-text-secondary)}
+
+/* LEGEND + FILTERS */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:1rem}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+.fbtn{padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;transition:all .15s}
+.fbtn.on,.fbtn:hover{background:#185FA5;color:#fff;border-color:#185FA5}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:48px}
+.timeline::before{content:'';position:absolute;left:17px;top:8px;bottom:8px;width:2.5px;background:linear-gradient(to bottom,#185FA5,#85B7EB,#185FA5);border-radius:2px}
+.tl-item{position:relative;margin-bottom:1.25rem}
+.tl-item.hidden{display:none}
+.tl-num{position:absolute;left:-37px;top:13px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;border:2px solid var(--color-background-primary);z-index:2}
+.tl-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s}
+.tl-card:hover{border-color:var(--color-border-primary);transform:translateX(3px)}
+.tl-card.open{border-color:#378ADD}
+.tl-head{display:flex;align-items:flex-start;gap:9px;padding:11px 13px}
+.tl-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:11px;background:#E6F1FB;color:#0C447C;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.tl-cdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.tl-titles{flex:1;min-width:0}
+.tl-title{font-size:14px;font-weight:500;color:var(--color-text-primary);line-height:1.35}
+.tl-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.tl-chev{margin-left:auto;color:var(--color-text-secondary);font-size:14px;flex-shrink:0;transition:transform .2s;padding-top:2px}
+.tl-card.open .tl-chev{transform:rotate(180deg)}
+.tl-body{display:none;border-top:0.5px solid var(--color-border-tertiary)}
+.tl-card.open .tl-body{display:block}
+.img-zone{position:relative;height:200px;background:#dde8f4;overflow:hidden}
+.img-zone img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
+.img-zone .icap{position:absolute;bottom:0;left:0;right:0;padding:4px 10px;background:rgba(4,44,83,.65);color:#fff;font-size:10.5px;line-height:1.35}
+.img-zone .ipl{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.img-zone .ipl i{font-size:40px;color:#185FA5}
+.img-zone .ipl p{font-size:12px;color:#185FA5}
+.yt-btn{display:flex;align-items:center;gap:8px;margin:10px 13px 0;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid #E24B4A;color:#A32D2D;background:var(--color-background-primary);font-size:12px;text-decoration:none;transition:background .15s}
+.yt-btn:hover{background:#FCEBEB}
+.yt-icon{width:20px;height:14px;background:#E24B4A;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.yt-icon::after{content:'';border-style:solid;border-width:4px 0 4px 8px;border-color:transparent transparent transparent #fff}
+.tl-txt{padding:11px 13px;font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.tl-txt p{margin-bottom:7px}.tl-txt p:last-child{margin-bottom:0}
+.tl-txt strong{color:var(--color-text-primary);font-weight:500}
+.tl-txt em{font-style:italic}
+.tl-tags{display:flex;gap:5px;flex-wrap:wrap;padding:0 13px 11px}
+.tl-tag{font-size:10.5px;padding:2px 7px;border-radius:10px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.era-div{display:flex;align-items:center;gap:10px;margin:1.5rem 0 1rem;padding-left:0}
+.era-div span{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;color:var(--color-text-secondary)}
+.era-div::before,.era-div::after{content:'';flex:1;height:0.5px;background:var(--color-border-tertiary)}
+
+/* QUIZ */
+.qz-hero{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:14px}
+.qz-hero-icon{width:40px;height:40px;border-radius:var(--border-radius-md);background:#E6F1FB;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qz-hero-icon i{font-size:20px;color:#0C447C}
+.qz-hero h2{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.qz-hero p{font-size:12.5px;color:var(--color-text-secondary);line-height:1.5}
+.prog-wrap{margin-bottom:1.5rem}
+.prog-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.prog-top span{font-size:12px;color:var(--color-text-secondary)}
+.prog-top strong{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.prog-bar{height:4px;background:var(--color-background-secondary);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:#185FA5;border-radius:99px;transition:width .4s}
+.hint-row{font-size:11px;color:var(--color-text-secondary);text-align:center;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:5px}
+.q-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+.q-header{padding:.875rem 1.125rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;gap:10px;align-items:flex-start}
+.q-num{width:24px;height:24px;border-radius:50%;background:#E6F1FB;color:#0C447C;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.q-text{font-size:13.5px;font-weight:500;color:var(--color-text-primary);line-height:1.5}
+.q-opts{padding:.625rem 1.125rem .875rem}
+.opt{display:flex;align-items:flex-start;gap:9px;padding:8px 11px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);margin-bottom:6px;cursor:pointer;transition:border-color .12s,background .12s;font-size:13px;color:var(--color-text-secondary);background:var(--color-background-primary)}
+.opt:last-child{margin-bottom:0}
+.opt:hover:not(.locked){border-color:var(--color-border-primary);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.opt.correct{border-color:#0F6E56;background:#E1F5EE;color:#085041}
+.opt.wrong{border-color:#993C1D;background:#FAECE7;color:#712B13}
+.opt.reveal{border-color:#0F6E56;background:#E1F5EE;color:#085041}
+.opt.locked{cursor:default}
+.opt-lt{width:20px;height:20px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .12s}
+.opt.correct .opt-lt{background:#0F6E56;color:#fff;border-color:#0F6E56}
+.opt.wrong .opt-lt{background:#993C1D;color:#fff;border-color:#993C1D}
+.opt.reveal .opt-lt{background:#0F6E56;color:#fff;border-color:#0F6E56}
+.fb{margin:0 1.125rem .875rem;border-radius:var(--border-radius-md);padding:9px 12px;font-size:12.5px;line-height:1.65;display:none;gap:9px;align-items:flex-start}
+.fb.show{display:flex}
+.fb.ok{background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
+.fb.ko{background:#FAECE7;color:#712B13;border:0.5px solid #F0997B}
+.fb i{font-size:16px;flex-shrink:0;margin-top:1px}
+.q-div{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:.875rem 0}
+.score-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:2rem 1.5rem;text-align:center;display:none}
+.score-card.show{display:block}
+.score-big{font-size:50px;font-weight:500;line-height:1;margin-bottom:.4rem;color:var(--color-text-primary)}
+.score-lbl{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.score-badges{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:1.25rem}
+.sc-b{display:flex;flex-direction:column;align-items:center;gap:3px}
+.sc-b .sc-n{font-size:20px;font-weight:500}
+.sc-b .sc-l{font-size:11px;color:var(--color-text-secondary)}
+.sc-b.g .sc-n{color:#0F6E56}
+.sc-b.r .sc-n{color:#993C1D}
+.sc-b.b .sc-n{color:#185FA5}
+.score-msg{font-size:13px;color:var(--color-text-secondary);line-height:1.7;max-width:460px;margin:0 auto 1.5rem}
+.retry-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 20px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;font-weight:500;transition:all .15s}
+.retry-btn:hover{background:#185FA5;color:#fff;border-color:#185FA5}
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Democrazia italiana: timeline e verifica interattiva</h2>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-tabs">
+    <button class="nav-tab on" id="tab-tl" onclick="goPage('timeline')">
+      <i class="ti ti-timeline" aria-hidden="true"></i> Contenuti
+    </button>
+    <button class="nav-tab" id="tab-qz" onclick="goPage('quiz')">
+      <i class="ti ti-school" aria-hidden="true"></i> Verifica
+    </button>
+  </div>
+  <button class="nav-btn" id="main-btn" onclick="goPage('quiz')">
+    Vai alla verifica <i class="ti ti-arrow-right" aria-hidden="true"></i>
+  </button>
+</div>
+
+<!-- PAGE 1: TIMELINE -->
+<div class="page active" id="page-timeline">
+  <div class="hero">
+    <span class="hero-flag">🇮🇹</span>
+    <h1>La strada verso la democrazia italiana</h1>
+    <p>Dal 1797 al 2020 — 20 tappe fondamentali. Clicca ogni evento per aprire immagine, video e approfondimento.</p>
+    <div class="hero-badge">20 eventi</div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Politico-istituzionale</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Sociale e civile</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D85A30"></div>Guerra e crisi</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7F77DD"></div>Fondativo/Costituente</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#C0973A"></div>Diritti e riforme</div>
+  </div>
+  <div class="filters">
+    <button class="fbtn on" onclick="filt('all',this)">Tutti</button>
+    <button class="fbtn" onclick="filt('pol',this)">⚖️ Politico</button>
+    <button class="fbtn" onclick="filt('soc',this)">🤝 Sociale</button>
+    <button class="fbtn" onclick="filt('war',this)">⚔️ Guerra</button>
+    <button class="fbtn" onclick="filt('cost',this)">📜 Costituente</button>
+    <button class="fbtn" onclick="filt('dir',this)">⭐ Diritti</button>
+  </div>
+  <div class="timeline" id="tl"></div>
+</div>
+
+<!-- PAGE 2: QUIZ -->
+<div class="page" id="page-quiz">
+  <div class="qz-hero">
+    <div class="qz-hero-icon"><i class="ti ti-school" aria-hidden="true"></i></div>
+    <div>
+      <h2>Verifica di comprensione</h2>
+      <p>12 domande sulla storia della democrazia italiana. Clicca direttamente sulla risposta per confermarla.</p>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-top"><span>Domande risposte</span><strong id="prog-txt">0 / 12</strong></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <p class="hint-row"><i class="ti ti-hand-click" aria-hidden="true"></i> Tocca una risposta per confermarla automaticamente</p>
+  <div id="qz-body"></div>
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="sc-big"></div>
+    <div class="score-lbl" id="sc-lbl"></div>
+    <div class="score-badges">
+      <div class="sc-b g"><span class="sc-n" id="sc-ok"></span><span class="sc-l">Corrette</span></div>
+      <div class="sc-b r"><span class="sc-n" id="sc-ko"></span><span class="sc-l">Errate</span></div>
+      <div class="sc-b b"><span class="sc-n" id="sc-pt"></span><span class="sc-l">Punteggio</span></div>
+    </div>
+    <p class="score-msg" id="sc-msg"></p>
+    <button class="retry-btn" onclick="restartQuiz()"><i class="ti ti-refresh" aria-hidden="true"></i> Ricomincia il test</button>
+  </div>
+</div>
+
+<script>
+/* ── NAVIGATION ── */
+function goPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('tab-'+p).classList.add('on');
+  const btn=document.getElementById('main-btn');
+  if(p==='timeline'){
+    btn.innerHTML='Vai alla verifica <i class="ti ti-arrow-right" aria-hidden="true"></i>';
+    btn.onclick=()=>goPage('quiz');
+  } else {
+    btn.innerHTML='<i class="ti ti-arrow-left" aria-hidden="true"></i> Torna ai contenuti';
+    btn.onclick=()=>goPage('timeline');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── TIMELINE DATA ── */
+const EV=[
+{era:"Le origini (1797–1861)",y:"1797–1799",cat:"pol",col:"#378ADD",
+ title:"Le Repubbliche Giacobine",sub:"Napoleone porta la Rivoluzione in Italia",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg/480px-Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg",
+ icap:"Napoleone Bonaparte — J.L. David, 1812 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=RvIrEHuiYZE",ytlbl:"Napoleone e l'Italia",
+ txt:"<p>Con le campagne napoleoniche nascono le prime Repubbliche moderne: <strong>Cisalpina, Romana, Partenopea</strong>. Per la prima volta si applicano uguaglianza davanti alla legge, libertà di stampa, abolizione dei privilegi feudali.</p><p>Queste esperienze, pur brevi, seminano i germi del Risorgimento: <em>sovranità popolare, diritti civili, separazione dei poteri</em>.</p>",
+ tags:["Napoleone","Rivoluzione Francese","Prima Costituzione"]},
+
+{y:"1820–1848",cat:"soc",col:"#1D9E75",
+ title:"Moti Risorgimentali e Carboneria",sub:"Il popolo italiano si risveglia",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Giuseppe_Garibaldi.jpg/400px-Giuseppe_Garibaldi.jpg",
+ icap:"Giuseppe Garibaldi, eroe dei Due Mondi (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=lrNS93VnLG8",ytlbl:"Il Risorgimento — RAI Cultura",
+ txt:"<p>La <strong>Carboneria</strong> e la <em>Giovine Italia</em> di <strong>Mazzini</strong> diffondono ideali di libertà e unità. I Moti del <strong>1848</strong> — la Primavera dei Popoli — strappano le prime carte costituzionali.</p>",
+ tags:["Carboneria","Mazzini","Garibaldi","1848"]},
+
+{y:"4 Marzo 1848",cat:"pol",col:"#378ADD",
+ title:"Lo Statuto Albertino",sub:"La prima Costituzione del futuro Stato italiano",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Statuto_Albertino_manoscritto.jpg/480px-Statuto_Albertino_manoscritto.jpg",
+ icap:"Manoscritto originale dello Statuto Albertino (Archivio di Stato / Wikimedia)",
+ yturl:"https://www.youtube.com/watch?v=UZiEqeqK2kI",ytlbl:"Lo Statuto Albertino spiegato",
+ txt:"<p>Carlo Alberto promulga lo Statuto: monarchia costituzionale, Parlamento bicamerale, voto censitario. Pur limitato, resterà la carta fondamentale dell'Italia unita <strong>dal 1861 al 1948</strong>.</p>",
+ tags:["Carlo Alberto","Parlamento","Statuto","Monarchia Costituzionale"]},
+
+{y:"17 Marzo 1861",cat:"pol",col:"#378ADD",
+ title:"Nasce il Regno d'Italia",sub:"Vittorio Emanuele II primo re — solo il 2,5% vota",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Vittorio_Emanuele_II_of_Italy.jpg/400px-Vittorio_Emanuele_II_of_Italy.jpg",
+ icap:"Vittorio Emanuele II, primo re d'Italia (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=9DZGrHm9Mtg",ytlbl:"L'Unità d'Italia — documentario",
+ txt:"<p>La penisola è finalmente unita, ma la democrazia è ancora élitaria. Solo il <strong>2,5% della popolazione</strong> può votare. Il Parlamento esiste, ma il potere reale rimane al re e a ristrette classi dirigenti.</p>",
+ tags:["Cavour","Garibaldi","Risorgimento","1861"]},
+
+{era:"Il Regno d'Italia (1861–1922)",y:"1912",cat:"soc",col:"#1D9E75",
+ title:"Suffragio universale maschile",sub:"Da 3 milioni a 8,6 milioni di elettori",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Giovanni_Giolitti.jpg/400px-Giovanni_Giolitti.jpg",
+ icap:"Giovanni Giolitti, presidente del Consiglio (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=KVMQFp2tBhE",ytlbl:"L'età giolittiana",
+ txt:"<p>La riforma <strong>Giolitti</strong> estende il voto a quasi tutti i maschi adulti. I partiti di massa — socialisti e cattolici — entrano per la prima volta nella politica. Le <strong>donne</strong> restano escluse fino al 1945.</p>",
+ tags:["Giolitti","Suffragio","Democrazia","1912"]},
+
+{y:"1915–1918",cat:"war",col:"#D85A30",
+ title:"Prima Guerra Mondiale",sub:"600.000 caduti, democrazia in crisi",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Italian_troops_WWI.jpg/480px-Italian_troops_WWI.jpg",
+ icap:"Soldati italiani sul fronte della Grande Guerra (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=xfpGSf9CDHE",ytlbl:"L'Italia nella Grande Guerra",
+ txt:"<p>L'Italia entra in guerra <em>senza consultare il Parlamento</em>. La <strong>vittoria mutilata</strong>, i 600.000 caduti e le difficoltà economiche del dopoguerra creano quel clima di radicalizzazione che apre la strada al fascismo.</p>",
+ tags:["Grande Guerra","Caporetto","Vittoria Mutilata","1918"]},
+
+{era:"Fascismo e Resistenza (1922–1945)",y:"28 Ott 1922",cat:"war",col:"#D85A30",
+ title:"Marcia su Roma — il Fascismo al potere",sub:"La democrazia liberale crolla",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Bundesarchiv_Bild_102-00268%2C_Benito_Mussolini.jpg/400px-Bundesarchiv_Bild_102-00268%2C_Benito_Mussolini.jpg",
+ icap:"Benito Mussolini, 1923 (Bundesarchiv / Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=tPW1bFJPCEY",ytlbl:"La Marcia su Roma",
+ txt:"<p>Il re affida il governo a <strong>Mussolini</strong>. Tra il 1922 e il 1926, le <strong>leggi fascistissime</strong> aboliscono partiti, libertà di stampa ed elezioni libere. Inizia un ventennio di dittatura totalitaria.</p>",
+ tags:["Fascismo","Mussolini","Dittatura","1922"]},
+
+{y:"1938",cat:"war",col:"#D85A30",
+ title:"Leggi Razziali",sub:"Lo Stato discrimina i cittadini ebrei",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Leggi_razziali_1938_manifesto.jpg/440px-Leggi_razziali_1938_manifesto.jpg",
+ icap:"Manifesto delle leggi razziali fasciste, 1938 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=AEjD5CGmRoQ",ytlbl:"Le leggi razziali — RAI Scuola",
+ txt:"<p>Le <strong>leggi razziali del 1938</strong> escludono i cittadini ebrei dalla vita pubblica: vietano loro di lavorare, studiare, sposarsi con non ebrei. La <strong>Costituzione del 1948</strong> nasce anche come risposta esplicita a questa barbarie.</p>",
+ tags:["Leggi Razziali","Persecuzione","Antifascismo","1938"]},
+
+{y:"1943–1945",cat:"war",col:"#D85A30",
+ title:"Resistenza e Liberazione",sub:"300.000 partigiani riconquistano la libertà",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Partigiani_Milano_1945.jpg/480px-Partigiani_Milano_1945.jpg",
+ icap:"Partigiani a Milano, 25 aprile 1945 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=wBNpnTVaNdg",ytlbl:"La Resistenza italiana",
+ txt:"<p>Dopo l'<strong>8 settembre 1943</strong>, comunisti, socialisti, cattolici e liberali combattono uniti. Il <strong>25 aprile 1945</strong> — Festa della Liberazione — segna la rinascita morale del Paese. I valori partigiani entrano nella Costituzione.</p>",
+ tags:["Resistenza","Partigiani","25 Aprile","Liberazione"]},
+
+{era:"Nascita della Repubblica (1946–1948)",y:"2–3 Giu 1946",cat:"cost",col:"#7F77DD",
+ title:"Referendum: Repubblica o Monarchia?",sub:"Per la prima volta votano anche le donne",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Referendum_2_giugno_1946.jpg/480px-Referendum_2_giugno_1946.jpg",
+ icap:"Scheda del Referendum istituzionale del 1946 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=WPJJnHZVP2g",ytlbl:"Il Referendum del 1946 — Rai Storia",
+ txt:"<p>Votano per la prima volta le <strong>donne</strong> (12,7 milioni). Partecipazione: <strong>89%</strong>. La <strong>Repubblica</strong> vince con il 54,3%. Il re Umberto II parte in esilio. Nasce l'Assemblea Costituente.</p>",
+ tags:["Referendum","Repubblica","Voto alle donne","1946"]},
+
+{y:"22 Dic 1947",cat:"cost",col:"#7F77DD",
+ title:"L'Assemblea Costituente approva la Costituzione",sub:"21 donne tra i 556 costituenti",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Assemblea_Costituente_italiana.jpg/480px-Assemblea_Costituente_italiana.jpg",
+ icap:"L'Assemblea Costituente a Montecitorio (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=zT_XqHq5NQw",ytlbl:"I padri costituenti — documentario",
+ txt:"<p>Dopo 18 mesi di lavoro, i <strong>556 costituenti</strong> — tra cui <strong>21 donne</strong> — approvano la Costituzione. Tra le madri costituenti: <strong>Nilde Iotti, Teresa Mattei, Lina Merlin</strong>. Un documento nato dal dialogo tra culture diverse.</p>",
+ tags:["Costituente","Padri Costituenti","Madri Costituenti","1947"]},
+
+{y:"1 Gen 1948",cat:"cost",col:"#7F77DD",
+ title:"Entra in vigore la Costituzione Italiana",sub:"«La sovranità appartiene al popolo»",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Costituzione_della_Repubblica_Italiana_-_1948.jpg/440px-Costituzione_della_Repubblica_Italiana_-_1948.jpg",
+ icap:"La Costituzione della Repubblica Italiana, 1948 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=s-4DJbkpbmE",ytlbl:"La Costituzione spiegata — Rai Scuola",
+ txt:"<p>Art. 1: <em>«L'Italia è una Repubblica democratica, fondata sul lavoro. La sovranità appartiene al popolo»</em>. Tutela diritti fondamentali, uguaglianza di genere, libertà di pensiero e il ripudio della guerra.</p>",
+ tags:["Costituzione","Art.1","Repubblica","1948"]},
+
+{era:"La democrazia in cammino (1948–oggi)",y:"18 Apr 1948",cat:"pol",col:"#378ADD",
+ title:"Elezioni del 18 aprile 1948",sub:"Il primo voto libero della Repubblica",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Elezioni_politiche_italiane_1948.jpg/480px-Elezioni_politiche_italiane_1948.jpg",
+ icap:"Manifesti elettorali del 18 aprile 1948 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=DHf1YrQXNaM",ytlbl:"Le elezioni del 1948 — Rai Storia",
+ txt:"<p>Le prime elezioni libere della Repubblica: la <strong>Democrazia Cristiana</strong> vince con il 48,5%. Per la prima volta tutti i cittadini, uomini e donne, esercitano il diritto di voto garantito dalla Costituzione.</p>",
+ tags:["Elezioni","De Gasperi","DC","PCI","1948"]},
+
+{y:"1970",cat:"dir",col:"#C0973A",
+ title:"Statuto dei Lavoratori e nascita delle Regioni",sub:"Democrazia dal basso, diritti sul lavoro",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Statuto_dei_lavoratori_1970.jpg/440px-Statuto_dei_lavoratori_1970.jpg",
+ icap:"Lo Statuto dei Lavoratori, legge 300/1970 (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=r9o5MgBxKtM",ytlbl:"Lo Statuto dei Lavoratori",
+ txt:"<p>Lo <strong>Statuto dei Lavoratori</strong> (legge 300) garantisce i diritti fondamentali nei luoghi di lavoro. Nascono le <strong>Regioni</strong> a statuto ordinario. Nello stesso anno viene introdotto il <strong>divorzio</strong>, confermato dal referendum del 1974.</p>",
+ tags:["Statuto Lavoratori","Regioni","Diritti","1970","Divorzio"]},
+
+{y:"1978",cat:"dir",col:"#C0973A",
+ title:"Anni di Piombo — la democrazia sotto attacco",sub:"Il terrorismo non ferma le istituzioni",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Aldo_Moro.jpg/400px-Aldo_Moro.jpg",
+ icap:"Aldo Moro, rapito e ucciso dalle BR (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=SrLJm6GxZ1Y",ytlbl:"Gli anni di piombo",
+ txt:"<p>Il <strong>16 marzo 1978</strong> le Brigate Rosse rapiscono e poi uccidono <strong>Aldo Moro</strong>. Le istituzioni resistono: la risposta dello Stato non sospende le garanzie costituzionali, dimostrando la maturità della democrazia italiana.</p>",
+ tags:["Anni di Piombo","Brigate Rosse","Moro","1978"]},
+
+{y:"1992–1994",cat:"pol",col:"#378ADD",
+ title:"Tangentopoli e la fine della Prima Repubblica",sub:"La rivoluzione giudiziaria cambia l'Italia",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Antonio_Di_Pietro.jpg/400px-Antonio_Di_Pietro.jpg",
+ icap:"Antonio Di Pietro, pm di Mani Pulite (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=qR4pGG6XJiY",ytlbl:"Mani Pulite — Tangentopoli",
+ txt:"<p>L'operazione <strong>Mani Pulite</strong> travolge i partiti della Prima Repubblica. Il referendum del <strong>1993</strong> introduce il sistema maggioritario. Nasce la Seconda Repubblica.</p>",
+ tags:["Tangentopoli","Mani Pulite","Prima Repubblica","1992"]},
+
+{y:"2007",cat:"dir",col:"#C0973A",
+ title:"L'Italia e l'Unione Europea",sub:"Dal Trattato di Roma al Trattato di Lisbona",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/480px-Flag_of_Europe.svg.png",
+ icap:"Bandiera dell'Unione Europea (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=DP_oTBqiLQk",ytlbl:"Storia dell'Unione Europea",
+ txt:"<p>L'Italia è tra i fondatori della <strong>Comunità Europea</strong> (1957). Il <strong>Trattato di Lisbona</strong> del 2007 rafforza le istituzioni democratiche dell'UE. I valori dell'art. 2 del Trattato rispecchiano quelli della nostra Costituzione.</p>",
+ tags:["Unione Europea","Trattato di Roma","Lisbona"]},
+
+{y:"2020–oggi",cat:"dir",col:"#C0973A",
+ title:"Riforma costituzionale: riduzione dei parlamentari",sub:"La democrazia si rinnova",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Parlamento_italiano_Camera.jpg/480px-Parlamento_italiano_Camera.jpg",
+ icap:"L'aula di Montecitorio, Camera dei Deputati (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=Nq7rCCEtq5c",ytlbl:"La riforma del Parlamento",
+ txt:"<p>Il referendum del <strong>20–21 settembre 2020</strong> approva la riduzione da <strong>945 a 600</strong> parlamentari (400 deputati + 200 senatori). Nel 2021 il voto al Senato scende a 18 anni. La democrazia italiana continua a evolversi.</p>",
+ tags:["Referendum 2020","Riforma Costituzionale","Voto 18 anni"]},
+
+{y:"Oggi",cat:"soc",col:"#1D9E75",
+ title:"La democrazia è nelle tue mani",sub:"Partecipare è un dovere civico",
+ img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Urna_elettorale_italiana.jpg/440px-Urna_elettorale_italiana.jpg",
+ icap:"Un'urna elettorale italiana (Wikimedia Commons)",
+ yturl:"https://www.youtube.com/watch?v=Uja3o_-MaYc",ytlbl:"Perché votare è importante",
+ txt:"<p>Art. 48: <em>«Il voto è personale ed eguale, libero e segreto. Il suo esercizio è dovere civico»</em>. La democrazia richiede <strong>partecipazione attiva</strong>: votare, informarsi, impegnarsi. Ogni generazione ha il compito di custodirla e rinnovarla.</p>",
+ tags:["Voto","Partecipazione","Dovere Civico","Cittadinanza"]}
+];
+
+/* build timeline */
+let currentEra="";
+function buildTimeline(){
+  const tl=document.getElementById('tl');
+  tl.innerHTML='';
+  currentEra="";
+  EV.forEach((e,i)=>{
+    if(e.era&&e.era!==currentEra){
+      currentEra=e.era;
+      const div=document.createElement('div');
+      div.className='era-div';
+      div.innerHTML=`<span>${e.era}</span>`;
+      tl.appendChild(div);
+    }
+    const d=document.createElement('div');
+    d.className='tl-item';
+    d.dataset.cat=e.cat;
+    d.innerHTML=`
+      <div class="tl-num" style="background:${e.col}">${i+1}</div>
+      <div class="tl-card" id="tlc${i}" onclick="togTL(${i})">
+        <div class="tl-head">
+          <span class="tl-badge">${e.y}</span>
+          <span class="tl-cdot" style="background:${e.col}"></span>
+          <div class="tl-titles">
+            <div class="tl-title">${e.title}</div>
+            <div class="tl-sub">${e.sub}</div>
+          </div>
+          <i class="ti ti-chevron-down tl-chev" aria-hidden="true"></i>
+        </div>
+        <div class="tl-body">
+          <div class="img-zone">
+            <img src="${e.img}" alt="${e.title}" loading="lazy"
+              onerror="this.parentNode.innerHTML='<div class=ipl><i class=\\'ti ti-photo\\'></i><p>${e.title}</p></div>'">
+            <div class="icap">${e.icap}</div>
+          </div>
+          <a class="yt-btn" href="${e.yturl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <div class="yt-icon"></div>
+            <span>${e.ytlbl}</span>
+            <i class="ti ti-external-link" style="margin-left:auto;font-size:13px" aria-hidden="true"></i>
+          </a>
+          <div class="tl-txt">${e.txt}</div>
+          <div class="tl-tags">${e.tags.map(t=>`<span class="tl-tag">${t}</span>`).join('')}</div>
+        </div>
+      </div>`;
+    tl.appendChild(d);
+  });
+}
+function togTL(i){document.getElementById('tlc'+i).classList.toggle('open')}
+function filt(cat,btn){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tl-item').forEach(it=>{
+    it.classList.toggle('hidden',cat!=='all'&&it.dataset.cat!==cat);
+  });
+}
+
+/* ── QUIZ DATA ── */
+const QS=[
+{q:"Quale evento napoleonico portò per la prima volta in Italia principi come l'uguaglianza davanti alla legge e la libertà di stampa?",
+opts:["La battaglia di Waterloo","La nascita delle Repubbliche Giacobine (1797–99)","Il Congresso di Vienna","La campagna d'Egitto"],ans:1,
+ok:"Esatto! Le Repubbliche Cisalpina, Romana e Partenopea introdussero per la prima volta nella penisola princìpi rivoluzionari: sovranità popolare, abolizione dei privilegi feudali, libertà di stampa. Esperienze brevi ma seminali per tutto il Risorgimento.",
+ko:"Non corretto. Le Repubbliche Giacobine (1797–99), nate dalle campagne di Napoleone, furono il primo vero contatto dell'Italia con le idee rivoluzionarie. Il Congresso di Vienna (1815) fece invece il contrario, restaurando i vecchi regimi."},
+
+{q:"Lo Statuto Albertino fu promulgato nel 1848. Fino a quale anno rimase la carta fondamentale dell'Italia?",
+opts:["Fino al 1922, con l'avvento del fascismo","Fino al 1946, con il referendum istituzionale","Fino al 1948, con l'entrata in vigore della Costituzione repubblicana","Fino al 1900"],ans:2,
+ok:"Perfetto! Lo Statuto Albertino rimase in vigore dal 1848 al 1° gennaio 1948. Durante il fascismo fu svuotato di significato ma non abrogato formalmente: Mussolini lo usò come copertura istituzionale.",
+ko:"Non corretto. Lo Statuto Albertino sopravvisse persino al fascismo — che lo svuotò senza abrogarlo. Cessò di avere valore solo il 1° gennaio 1948, con l'entrata in vigore della Costituzione repubblicana."},
+
+{q:"Con la riforma Giolitti del 1912, a quanti cittadini fu esteso il diritto di voto?",
+opts:["A tutti i cittadini italiani, uomini e donne","Solo ai laureati e diplomati","A quasi tutti i maschi adulti, da 3 a circa 8,6 milioni di elettori","Ai soli proprietari terrieri"],ans:2,
+ok:"Giusto! Il corpo elettorale quasi quadruplicò, da 3 a 8,6 milioni. Per la prima volta i partiti di massa entrarono nella politica. Le donne però dovettero aspettare il 1945.",
+ko:"Non è corretto. La riforma Giolitti estese il voto ai maschi adulti: da 3 a 8,6 milioni di elettori. Le donne rimasero escluse fino al 1945, quando ottennero il voto in vista del referendum del 1946."},
+
+{q:"Il 28 ottobre 1922 il re Vittorio Emanuele III rifiutò di firmare lo stato d'assedio. Qual fu la conseguenza diretta?",
+opts:["L'Italia dichiarò guerra alla Francia","Mussolini fu arrestato","Il re affidò il governo a Mussolini, aprendo la strada alla dittatura","Si tenne un referendum istituzionale"],ans:2,
+ok:"Corretto! Con quel rifiuto il re consegnò il potere a Mussolini senza che venisse sparato un colpo. Tra il 1922 e il 1926 le leggi fascistissime smantellarono ogni istituzione democratica.",
+ko:"Non è corretto. Il re si rifiutò di proclamare lo stato d'assedio e chiamò Mussolini a formare il governo. Fu una resa delle istituzioni liberali che aprì la porta a vent'anni di dittatura fascista."},
+
+{q:"Perché la Resistenza (1943–45) è considerata fondamentale per la nascita della democrazia italiana?",
+opts:["Perché fu organizzata dagli Alleati americani","Perché unì cattolici, comunisti e liberali i cui valori confluirono nella Costituzione","Perché permise all'Italia di evitare le riparazioni di guerra","Perché fu guidata dal re Umberto II"],ans:1,
+ok:"Esatto! La Resistenza fu un'esperienza plurale: DC, PCI, PSI, Partito d'Azione impararono a collaborare. Quella cultura del dialogo tra avversari divenne il modello della Costituente e della democrazia repubblicana.",
+ko:"Non corretto. La Resistenza fu cruciale perché fu un movimento autonomo e trasversale. I valori condivisi — antifascismo, libertà, dignità — divennero il fondamento spirituale della Costituzione del 1948."},
+
+{q:"Il 2–3 giugno 1946: chi votò per la prima volta in quell'occasione storica?",
+opts:["I giovani dai 18 anni in su","Le donne italiane, mai votato prima","I cittadini delle ex-colonie","I militari di carriera"],ans:1,
+ok:"Perfetto! Ben 12,7 milioni di donne esercitarono per la prima volta il diritto di voto. La loro partecipazione fu determinante nel referendum che sancì la nascita della Repubblica con il 54,3% dei voti.",
+ko:"Non è corretto. La grande novità del 2 giugno 1946 fu il voto alle donne: 12,7 milioni di nuove elettrici parteciparono sia al referendum istituzionale sia alle elezioni per l'Assemblea Costituente."},
+
+{q:"L'articolo 1 della Costituzione italiana recita: «L'Italia è una Repubblica democratica, fondata sul...»",
+opts:["...diritto","...lavoro","...suffragio universale","...rispetto delle istituzioni"],ans:1,
+ok:"Giusto! «...fondata sul lavoro. La sovranità appartiene al popolo». La scelta della parola «lavoro» fu voluta: i costituenti vollero ancorare la Repubblica alla dignità concreta delle persone, non a un'astrazione giuridica.",
+ko:"Non è questa la risposta. L'art. 1 recita: «fondata sul lavoro». La parola non fu casuale: lega la Repubblica alla dignità delle persone comuni. La Costituzione nasce anche dalla Resistenza operaia e contadina."},
+
+{q:"Quante donne fecero parte dell'Assemblea Costituente?",
+opts:["Nessuna","5 donne","21 donne","48 donne"],ans:2,
+ok:"Esatto! 21 madri costituenti — tra cui Nilde Iotti, Teresa Mattei, Lina Merlin — furono decisive per inserire il principio di uguaglianza di genere e tutele per la famiglia e il lavoro femminile.",
+ko:"Non corretto. 21 donne fecero parte dell'Assemblea Costituente. Le madri costituenti portarono nella Carta fondamentale una sensibilità sui diritti che altrimenti sarebbe mancata."},
+
+{q:"Cosa stabilisce l'articolo 48 della Costituzione riguardo al voto?",
+opts:["Il voto è obbligatorio pena una multa","Il voto è personale, eguale, libero, segreto; il suo esercizio è dovere civico","Il voto è riservato ai cittadini con almeno 25 anni per il Senato","Il voto può essere delegato a un familiare"],ans:1,
+ok:"Esatto! «Il voto è personale ed eguale, libero e segreto. Il suo esercizio è dovere civico». Non prevede sanzioni, ma dichiara il voto un dovere morale verso la comunità e verso chi ha lottato per conquistare quella libertà.",
+ko:"Non è corretto. L'art. 48 afferma che il voto è «personale, eguale, libero e segreto» e che il suo esercizio è «dovere civico». Non prevede sanzioni, ma sottolinea che la democrazia ha bisogno della partecipazione attiva."},
+
+{q:"Le leggi razziali del 1938 sono ricordate nella storia della democrazia italiana perché…",
+opts:["Furono le prime leggi del Parlamento repubblicano","Rappresentano il punto più basso della negazione dei diritti e ispirarono in negativo la Costituzione","Furono subito annullate dalla Corte Costituzionale","Riguardavano solo i cittadini stranieri"],ans:1,
+ok:"Corretto. Le leggi razziali esclusero i cittadini ebrei dalla vita pubblica e aprirono la strada alle deportazioni. L'art. 3 della Costituzione — «tutti i cittadini hanno pari dignità sociale» — fu scritto per rendere simili leggi impossibili per sempre.",
+ko:"Non corretto. Le leggi razziali furono uno dei momenti più bui della storia italiana. I costituenti le avevano presenti: l'art. 3 («pari dignità sociale») e il principio di uguaglianza nacquero proprio come risposta a quella tragedia."},
+
+{q:"Con il referendum del settembre 2020 gli italiani hanno approvato la riduzione del numero dei parlamentari. Da quanti a quanti?",
+opts:["Da 1.200 a 800","Da 945 a 600","Da 630 a 400","Da 800 a 500"],ans:1,
+ok:"Corretto! Il referendum del 20–21 settembre 2020 ha ridotto i parlamentari da 945 a 600 (400 deputati + 200 senatori), approvato con il 69,6% dei voti. In vigore dalle elezioni del settembre 2022.",
+ko:"Non è corretto. Il referendum del 2020 ha approvato la riduzione da 945 a 600 parlamentari, con il 69,6% dei voti favorevoli. È la modifica più importante alla struttura del Parlamento dai tempi della Costituente."},
+
+{q:"Qual è il principale motivo per cui la Prima Guerra Mondiale viene considerata un momento di crisi per la democrazia italiana?",
+opts:["Perché l'Italia perse la guerra","Perché l'entrata in guerra fu decisa senza consultare il Parlamento, e il dopoguerra creò il clima che portò al fascismo","Perché il re abdicò durante il conflitto","Perché il Parlamento fu sciolto per tutta la durata del conflitto"],ans:1,
+ok:"Esatto! L'Italia entrò in guerra con il Patto di Londra firmato all'insaputa del Parlamento. La vittoria mutilata, i 600.000 caduti e le difficoltà economiche crearono quel clima di radicalizzazione che aprì la strada alla marcia su Roma del 1922.",
+ko:"Non è corretto. Il punto cruciale fu che l'entrata in guerra bypassò il Parlamento — una scorciatoia antidemocratica. Le difficoltà del dopoguerra alimentarono il risentimento che il fascismo seppe cavalcare fino alla presa del potere."}
+];
+
+/* build quiz */
+let qAnswered=0;
+const qLocked=new Array(QS.length).fill(false);
+const qResults=new Array(QS.length).fill(null);
+const letters=['A','B','C','D'];
+
+function buildQuiz(){
+  const body=document.getElementById('qz-body');
+  body.innerHTML='';
+  QS.forEach((q,qi)=>{
+    const card=document.createElement('div');
+    card.className='q-card';
+    card.id='qc'+qi;
+    card.innerHTML=`
+      <div class="q-header">
+        <div class="q-num">${qi+1}</div>
+        <div class="q-text">${q.q}</div>
+      </div>
+      <div class="q-opts" id="qo${qi}">
+        ${q.opts.map((o,oi)=>`<div class="opt" id="qopt${qi}_${oi}" onclick="pickQ(${qi},${oi})"><div class="opt-lt">${letters[oi]}</div><span>${o}</span></div>`).join('')}
+      </div>
+      <div class="fb" id="fb${qi}">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <span id="fbt${qi}"></span>
+      </div>`;
+    body.appendChild(card);
+    if(qi<QS.length-1){const hr=document.createElement('hr');hr.className='q-div';body.appendChild(hr);}
+  });
+}
+
+function pickQ(qi,oi){
+  if(qLocked[qi]) return;
+  qLocked[qi]=true;
+  qAnswered++;
+  qResults[qi]=(oi===QS[qi].ans);
+  const q=QS[qi];
+  document.querySelectorAll('#qo'+qi+' .opt').forEach((o,i)=>{
+    o.classList.add('locked');
+    if(i===q.ans) o.classList.add(oi===q.ans?'correct':'reveal');
+    if(i===oi&&oi!==q.ans) o.classList.add('wrong');
+  });
+  const fb=document.getElementById('fb'+qi);
+  fb.classList.add('show');
+  if(oi===q.ans){fb.classList.add('ok');fb.querySelector('i').className='ti ti-circle-check';document.getElementById('fbt'+qi).textContent=q.ok;}
+  else{fb.classList.add('ko');fb.querySelector('i').className='ti ti-circle-x';document.getElementById('fbt'+qi).textContent=q.ko;}
+  const pct=Math.round(qAnswered/QS.length*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-txt').textContent=qAnswered+' / '+QS.length;
+  if(qAnswered===QS.length) setTimeout(showScore,700);
+}
+
+function showScore(){
+  const correct=qResults.filter(Boolean).length;
+  const pct=Math.round(correct/QS.length*100);
+  const sc=document.getElementById('score-card');
+  sc.classList.add('show');
+  document.getElementById('sc-big').textContent=pct+'%';
+  document.getElementById('sc-ok').textContent=correct;
+  document.getElementById('sc-ko').textContent=QS.length-correct;
+  document.getElementById('sc-pt').textContent=correct+'/'+QS.length;
+  let grade,msg;
+  if(pct>=90){grade='Eccellente!';msg='Dimostri una conoscenza approfondita e consapevole della storia della democrazia italiana. Sai contestualizzare gli eventi e coglierne le cause nel lungo periodo. La memoria storica è il fondamento di una cittadinanza attiva.';}
+  else if(pct>=75){grade='Molto bene!';msg='Conosci bene i passaggi fondamentali del percorso democratico italiano. Qualche lacuna su date o dettagli specifici, ma la visione d\'insieme è solida. Rileggi le schede degli eventi in cui hai sbagliato per consolidare la preparazione.';}
+  else if(pct>=50){grade='Sufficiente';msg='Hai una conoscenza di base, ma ci sono punti importanti da approfondire. Torna sulla timeline, rileggi le spiegazioni e riprova: la storia della democrazia è fatta di snodi cruciali che vale la pena comprendere bene.';}
+  else{grade='Da rivedere';msg='Qualche difficoltà in questa prima esplorazione, ma non preoccuparti! Torna sulla pagina dei contenuti, approfondisci i singoli eventi e riprova il test: la seconda volta andrà molto meglio.';}
+  document.getElementById('sc-lbl').textContent=grade;
+  document.getElementById('sc-msg').textContent=msg;
+  sc.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function restartQuiz(){
+  qAnswered=0;
+  qLocked.fill(false);
+  qResults.fill(null);
+  document.getElementById('score-card').classList.remove('show');
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('prog-txt').textContent='0 / '+QS.length;
+  buildQuiz();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildTimeline();
+buildQuiz();
+</script>
